@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="Mom Connect — a private family sharing dashboard." />
+<meta name="theme-color" content="#8b7bb8" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Mom Connect" />
+<title>Mom Connect</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238b7bb8'/%3E%3Ctext x='32' y='44' font-size='36' text-anchor='middle' fill='white' font-family='sans-serif'%3E%F0%9F%92%9C%3C/text%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #faf7f2;
+    --bg-elevated: #ffffff;
+    --accent: #8b7bb8;
+    --accent-strong: #6f5fa0;
+    --accent-soft: #ece7f7;
+    --accent-faint: #f5f2fb;
+    --text: #332f3a;
+    --text-soft: #6f6a7a;
+    --text-faint: #948f9e;
+    --border: #e8e2da;
+    --border-strong: #d8d0c6;
+    --success: #4f8a6b;
+    --success-soft: #e8f3ed;
+    --error: #b4554f;
+    --error-soft: #fbeceb;
+    --warning: #a67c33;
+    --warning-soft: #fbf3e4;
+    --shadow-sm: 0 1px 2px rgba(60, 50, 80, 0.06);
+    --shadow-md: 0 4px 16px rgba(60, 50, 80, 0.08);
+    --shadow-lg: 0 12px 40px rgba(60, 50, 80, 0.16);
+    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-lg: 20px;
+    --font: "Segoe UI", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    font-size: 16px;
+    overscroll-behavior-y: contain;
+  }
+
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.2;
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .btn:active:not(:disabled) { transform: scale(0.98); }
+  .btn:disabled { cursor: not-allowed; opacity: 0.6; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover:not(:disabled) { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--text); border-color: var(--border-strong); }
+  .btn-secondary:hover:not(:disabled) { background: var(--accent-faint); border-color: var(--accent); }
+  .btn-ghost {
+    background: transparent; color: var(--accent-strong); border-color: transparent;
+    padding: 8px 12px; font-size: 0.9rem;
+  }
+  .btn-ghost:hover:not(:disabled) { background: var(--accent-soft); }
+  .btn-small { padding: 6px 12px; font-size: 0.85rem; }
+  .btn-block { width: 100%; }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  .spinner-large { width: 32px; height: 32px; border-width: 3px; color: var(--accent); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Auth screen ---------- */
+  #auth-view {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 36px 32px 32px;
+  }
+  .auth-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .brand-logo {
+    width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft);
+    border-radius: 50%;
+    font-size: 1.7rem;
+    margin-bottom: 12px;
+  }
+  .auth-brand h1 {
+    margin: 0 0 6px;
+    font-size: 1.7rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+  .auth-brand p {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    max-width: 300px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-soft);
+  }
+  .field input {
+    width: 100%;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: 11px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: #fff;
+  }
+  .field .field-hint {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    margin-top: 5px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    user-select: none;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .auth-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .auth-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .auth-links .btn-ghost { font-size: 0.875rem; }
+
+  /* ---------- Notices ---------- */
+  .notice {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+  }
+  .notice .notice-icon { flex-shrink: 0; font-size: 1rem; line-height: 1.4; }
+  .notice p { margin: 0; }
+  .notice p + p { margin-top: 6px; }
+  .notice-error { background: var(--error-soft); border-color: #f0cdca; color: var(--error); }
+  .notice-success { background: var(--success-soft); border-color: #c9e2d4; color: var(--success); }
+  .notice-warning { background: var(--warning-soft); border-color: #ecdbb6; color: var(--warning); }
+  .notice-info { background: var(--accent-faint); border-color: #ddd5f0; color: var(--accent-strong); }
+  .notice-hidden { display: none; }
+
+  /* ---------- Banner (offline / update / install) ---------- */
+  .top-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #fff;
+    transform: translateY(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-md);
+  }
+  .top-banner.is-visible { transform: translateY(0); }
+  .top-banner.offline { background: var(--warning); }
+  .top-banner.online { background: var(--success); }
+  .top-banner.install { background: var(--accent-strong); }
+  .top-banner.update { background: var(--accent-strong); }
+  .top-banner button {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .top-banner button:hover { background: rgba(255,255,255,0.3); }
+
+  /* ---------- Toasts ---------- */
+  .toast-stack {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: min(360px, calc(100vw - 40px));
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--text);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.25s ease;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .toast.success { background: var(--success); }
+  .toast.error { background: var(--error); }
+  .toast.warning { background: var(--warning); }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- Dashboard ---------- */
+  #dashboard-view { display: none; min-height: 100vh; flex-direction: column; }
+
+  .app-header {
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .app-header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .header-logo {
+    width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--accent-soft);
+    border-radius: 50%;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .header-text { min-width: 0; }
+  .header-text h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .header-text .welcome {
+    margin: 1px 0 0;
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 46vw;
+  }
+  .header-account {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .account-email {
+    font-size: 0.82rem;
+    color: var(--text-soft);
+    background: var(--accent-faint);
+    border: 1px solid var(--border);
+    padding: 5px 11px;
+    border-radius: 999px;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-main {
+    flex: 1;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 20px 16px 48px;
+  }
+
+  .top-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .last-refreshed {
+    font-size: 0.82rem;
+    color: var(--text-faint);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .last-refreshed .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    display: inline-block;
+  }
+  .last-refreshed .dot.stale { background: var(--warning); }
+  .top-toolbar-actions { display: flex; gap: 8px; }
+
+  /* ---------- Tabs ---------- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 5px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1;
+    min-width: 92px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    padding: 11px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+  .tab-btn:hover { background: var(--accent-faint); color: var(--accent-strong); }
+  .tab-btn[aria-selected="true"] { background: var(--accent); color: #fff; }
+  .tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+  }
+  .tab-btn[aria-selected="true"] .tab-badge { background: rgba(255,255,255,0.25); color: #fff; }
+  .tab-badge.is-unread { background: #e26d5c; color: #fff; }
+
+  /* ---------- Panels ---------- */
+  .panel { display: none; }
+  .panel.panel-active { display: block; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .section-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-header-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ---------- Cards grid ---------- */
+  .card-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 620px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 16px 18px;
+    transition: box-shadow 0.15s ease;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  .card:hover { box-shadow: var(--shadow-md); }
+  .card-meta { font-size: 0.78rem; color: var(--text-faint); margin-top: 10px; }
+
+  /* Messages */
+  .message-title {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    overflow-wrap: break-word;
+  }
+  .message-title.is-fallback { color: var(--text-soft); font-style: italic; font-weight: 600; }
+  .message-content {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  .message-content.is-collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 8;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .expand-btn {
+    margin-top: 10px;
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    cursor: pointer;
+    padding: 4px 0;
+    border-radius: 4px;
+  }
+  .expand-btn:hover { text-decoration: underline; }
+
+  /* Locations */
+  .location-coords {
+    margin: 0 0 4px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+  .location-accuracy { margin: 0; font-size: 0.85rem; color: var(--text-soft); }
+  .location-invalid { margin: 0; font-size: 0.9rem; color: var(--warning); }
+  .map-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent-strong);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg-elevated);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  .map-link:hover { background: var(--accent-faint); border-color: var(--accent); }
+  .map-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* Photos */
+  .photo-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+  .photo-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--accent-faint);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .photo-frame img.is-loaded { opacity: 1; }
+  .photo-trigger {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    cursor: zoom-in;
+    position: relative;
+  }
+  .photo-trigger:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px;
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    position: absolute;
+    inset: 0;
+  }
+  .photo-placeholder .ph-icon { font-size: 1.6rem; opacity: 0.7; }
+  .photo-placeholder .btn { margin-top: 2px; }
+  .photo-info { padding: 12px 16px 14px; }
+  .photo-caption {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  .photo-caption.is-empty { color: var(--text-faint); font-style: italic; }
+  .photo-info .card-meta { margin-top: 6px; }
+
+  /* ---------- Skeletons ---------- */
+  .skeleton-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .skeleton {
+    background: linear-gradient(90deg, #f0ece5 25%, #f8f5ef 50%, #f0ece5 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  .skeleton-photo { aspect-ratio: 4 / 3; border-radius: 0; }
+  .skeleton-text { height: 14px; margin: 10px 16px; }
+  .skeleton-text.short { width: 60%; }
+  .skeleton-text.tiny { width: 40%; height: 11px; margin-top: 14px; }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ---------- Section states ---------- */
+  .section-state {
+    background: var(--bg-elevated);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 36px 20px;
+    text-align: center;
+    color: var(--text-soft);
+  }
+  .section-state .state-icon { font-size: 2rem; display: block; margin-bottom: 10px; }
+  .section-state h3 { margin: 0 0 8px; font-size: 1.05rem; color: var(--text); }
+  .section-state p { margin: 0 auto 14px; max-width: 440px; font-size: 0.9rem; line-height: 1.6; }
+  .section-state.is-error { border-style: solid; border-color: #f0cdca; background: var(--error-soft); }
+  .section-state.is-error h3 { color: var(--error); }
+
+  .load-more-wrap { display: flex; justify-content: center; margin-top: 18px; }
+
+  /* ---------- Lightbox ---------- */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(30, 26, 40, 0.88);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lightbox.is-open { display: flex; }
+  .lightbox-inner {
+    position: relative;
+    max-width: min(1100px, 100%);
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .lightbox img {
+    max-width: 100%;
+    max-height: calc(100vh - 140px);
+    object-fit: contain;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    background: #1c1826;
+  }
+  .lightbox-caption {
+    color: #f2eef8;
+    font-size: 0.92rem;
+    text-align: center;
+    max-width: 700px;
+    overflow-wrap: break-word;
+  }
+  .lightbox-caption small { display: block; opacity: 0.65; font-size: 0.78rem; margin-top: 3px; }
+  .lightbox-close {
+    position: absolute;
+    top: -46px;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 1.3rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.22); }
+  .lightbox-close:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+  .lightbox-nav.prev { left: -60px; }
+  .lightbox-nav.next { right: -60px; }
+  .lightbox-nav:disabled { opacity: 0.3; cursor: not-allowed; }
+  @media (max-width: 780px) {
+    .lightbox-nav.prev { left: 6px; }
+    .lightbox-nav.next { right: 6px; }
+  }
+  @media (max-width: 480px) {
+    .lightbox { padding: 12px; }
+    .lightbox-close { top: 8px; right: 8px; width: 44px; height: 44px; z-index: 5; background: rgba(0,0,0,0.5); }
+    .lightbox img { max-height: calc(100vh - 180px); }
+  }
+
+  /* ---------- Full-page boot ---------- */
+  #boot-view {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--text-soft);
+    padding: 24px;
+    text-align: center;
+  }
+  #boot-view .brand-logo { margin-bottom: 0; }
+  #boot-view p { margin: 0; font-size: 0.92rem; }
+
+  .fatal-box {
+    max-width: 460px;
+    background: var(--error-soft);
+    border: 1px solid #f0cdca;
+    color: var(--error);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    text-align: left;
+  }
+  .fatal-box strong { display: block; margin-bottom: 6px; }
+
+  .app-footer {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px 30px;
+    font-size: 0.75rem;
+    color: var(--text-faint);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  /* ---------- PTR (pull to refresh) ---------- */
+  .ptr-indicator {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-70px);
+    width: 40px; height: 40px;
+    background: var(--bg-elevated);
+    border-radius: 50%;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  .ptr-indicator.is-visible { transform: translateX(-50%) translateY(0); }
+  .ptr-indicator .spinner { display: none; }
+  .ptr-indicator.is-refreshing .spinner { display: inline-block; }
+  .ptr-indicator.is-refreshing .ptr-arrow { display: none; }
+  .ptr-arrow { font-size: 1.1rem; color: var(--accent); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 560px) {
+    .auth-card { padding: 28px 20px 24px; border-radius: var(--radius); }
+    .app-header { padding: 12px 14px; }
+    .app-header-inner { gap: 10px; }
+    .header-text .welcome { max-width: 52vw; }
+    .account-email { display: none; }
+    .app-main { padding: 16px 12px 40px; }
+    .card { padding: 14px 15px; }
+    .photo-info { padding: 10px 14px 12px; }
+    .top-toolbar { margin-bottom: 14px; }
+    .tabs { margin-bottom: 16px; }
+    .toast-stack { bottom: 12px; right: 12px; left: 12px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+    .spinner { animation: none; border-right-color: currentColor; opacity: 0.7; }
+    .skeleton { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= TOP BANNERS ================= -->
+<div id="offline-banner" class="top-banner offline" role="status" aria-live="polite">
+  <span aria-hidden="true">📡</span>
+  <span>You're offline. Showing cached content — changes will sync when you reconnect.</span>
+</div>
+<div id="install-banner" class="top-banner install" role="dialog" aria-label="Install app">
+  <span aria-hidden="true">📲</span>
+  <span>Install Mom Connect for quick, offline access</span>
+  <button type="button" id="install-accept">Install</button>
+  <button type="button" id="install-dismiss">Not now</button>
+</div>
+<div id="update-banner" class="top-banner update" role="status" aria-live="polite">
+  <span aria-hidden="true">✨</span>
+  <span>A new version is available.</span>
+  <button type="button" id="update-reload">Reload</button>
+</div>
+
+<!-- ================= TOAST STACK ================= -->
+<div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ================= BOOT ================= -->
+<div id="boot-view" role="status" aria-live="polite">
+  <div class="brand-logo" aria-hidden="true">💜</div>
+  <div class="spinner spinner-large" aria-hidden="true"></div>
+  <p>Getting things ready…</p>
+</div>
+
+<!-- ================= AUTH ================= -->
+<div id="auth-view" style="display:none;">
+  <main class="auth-card" aria-labelledby="auth-heading">
+    <div class="auth-brand">
+      <div class="brand-logo" aria-hidden="true">💜</div>
+      <h1 id="auth-heading">Mom Connect</h1>
+      <p>A private place for your family's photos, messages, and location updates.</p>
+    </div>
+
+    <div id="auth-notice" class="notice notice-hidden" role="alert" aria-live="assertive"></div>
+
+    <form id="auth-form" novalidate>
+      <div class="field">
+        <label for="auth-email">Email address</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email"
+               inputmode="email" placeholder="you@example.com" required />
+      </div>
+      <div class="field">
+        <label for="auth-password">Password</label>
+        <input id="auth-password" name="password" type="password"
+               autocomplete="current-password" placeholder="Your password" required minlength="6" />
+        <div class="field-hint">At least 6 characters.</div>
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="remember-device" checked />
+        <span>Stay signed in on this device</span>
+      </label>
+
+      <div class="auth-actions">
+        <button type="submit" id="signin-btn" class="btn btn-primary btn-block">
+          <span class="spinner" id="signin-spinner" style="display:none;" aria-hidden="true"></span>
+          <span id="signin-label">Sign In</span>
+        </button>
+        <button type="button" id="signup-btn" class="btn btn-secondary btn-block">
+          <span class="spinner" id="signup-spinner" style="display:none;" aria-hidden="true"></span>
+          <span id="signup-label">Create an Account</span>
+        </button>
+      </div>
+    </form>
+
+    <div class="auth-links">
+      <button type="button" id="forgot-btn" class="btn btn-ghost">Forgot your password?</button>
+    </div>
+  </main>
+</div>
+
+<!-- ================= DASHBOARD ================= -->
+<div id="dashboard-view">
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="header-brand">
+        <div class="header-logo" aria-hidden="true">💜</div>
+        <div class="header-text">
+          <h1>Mom Connect</h1>
+          <p class="welcome" id="welcome-text">Welcome back — here's what's new.</p>
+        </div>
+      </div>
+      <div class="header-account">
+        <span class="account-email" id="account-email" title="Signed-in account"></span>
+        <button type="button" id="signout-btn" class="btn btn-secondary btn-small">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="top-toolbar">
+      <span class="last-refreshed" id="last-refreshed">
+        <span class="dot stale" id="freshness-dot" aria-hidden="true"></span>
+        <span id="last-refreshed-text">Not refreshed yet</span>
+      </span>
+      <div class="top-toolbar-actions">
+        <button type="button" id="refresh-all-btn" class="btn btn-primary btn-small" title="Refresh all (R)">
+          <span class="spinner" id="refresh-all-spinner" style="display:none;" aria-hidden="true"></span>
+          <span id="refresh-all-label">Refresh All</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Dashboard sections">
+      <button type="button" class="tab-btn" id="tab-photos" role="tab"
+              aria-selected="true" aria-controls="panel-photos" tabindex="0" title="Photos (1)">
+        <span aria-hidden="true">🖼️</span> Photos
+        <span class="tab-badge" id="badge-photos" hidden></span>
+      </button>
+      <button type="button" class="tab-btn" id="tab-messages" role="tab"
+              aria-selected="false" aria-controls="panel-messages" tabindex="-1" title="Messages (2)">
+        <span aria-hidden="true">✉️</span> Messages
+        <span class="tab-badge" id="badge-messages" hidden></span>
+      </button>
+      <button type="button" class="tab-btn" id="tab-locations" role="tab"
+              aria-selected="false" aria-controls="panel-locations" tabindex="-1" title="Locations (3)">
+        <span aria-hidden="true">📍</span> Locations
+        <span class="tab-badge" id="badge-locations" hidden></span>
+      </button>
+    </div>
+
+    <section class="panel panel-active" id="panel-photos" role="tabpanel" aria-labelledby="tab-photos">
+      <div class="section-header">
+        <h2>Photos</h2>
+        <div class="section-header-actions">
+          <button type="button" id="refresh-photos-btn" class="btn btn-secondary btn-small">
+            <span class="spinner" id="refresh-photos-spinner" style="display:none;" aria-hidden="true"></span>
+            <span id="refresh-photos-label">Refresh</span>
+          </button>
+        </div>
+      </div>
+      <div id="photos-container" aria-live="polite"></div>
+      <div class="load-more-wrap" id="photos-more-wrap" hidden>
+        <button type="button" id="photos-load-more" class="btn btn-secondary btn-small">Load More Photos</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-messages" role="tabpanel" aria-labelledby="tab-messages" hidden>
+      <div class="section-header">
+        <h2>Messages</h2>
+        <div class="section-header-actions">
+          <button type="button" id="refresh-messages-btn" class="btn btn-secondary btn-small">
+            <span class="spinner" id="refresh-messages-spinner" style="display:none;" aria-hidden="true"></span>
+            <span id="refresh-messages-label">Refresh</span>
+          </button>
+        </div>
+      </div>
+      <div id="messages-container" aria-live="polite"></div>
+      <div class="load-more-wrap" id="messages-more-wrap" hidden>
+        <button type="button" id="messages-load-more" class="btn btn-secondary btn-small">Load More Messages</button>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-locations" role="tabpanel" aria-labelledby="tab-locations" hidden>
+      <div class="section-header">
+        <h2>Location Updates</h2>
+        <div class="section-header-actions">
+          <button type="button" id="refresh-locations-btn" class="btn btn-secondary btn-small">
+            <span class="spinner" id="refresh-locations-spinner" style="display:none;" aria-hidden="true"></span>
+            <span id="refresh-locations-label">Refresh</span>
+          </button>
+        </div>
+      </div>
+      <div id="locations-container" aria-live="polite"></div>
+      <div class="load-more-wrap" id="locations-more-wrap" hidden>
+        <button type="button" id="locations-load-more" class="btn btn-secondary btn-small">Load More Updates</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="app-footer">
+    Private family dashboard · Data visible only to accounts permitted by Supabase access policies.
+  </div>
+</div>
+
+<!-- ================= PULL-TO-REFRESH INDICATOR ================= -->
+<div class="ptr-indicator" id="ptr-indicator" aria-hidden="true">
+  <span class="ptr-arrow">↓</span>
+  <span class="spinner" aria-hidden="true"></span>
+</div>
+
+<!-- ================= LIGHTBOX ================= -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-caption" style="display:none;">
+  <div class="lightbox-inner">
+    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close larger photo view">✕</button>
+    <button type="button" class="lightbox-nav prev" id="lightbox-prev" aria-label="Previous photo">‹</button>
+    <button type="button" class="lightbox-nav next" id="lightbox-next" aria-label="Next photo">›</button>
+    <img id="lightbox-img" src="" alt="" />
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- ================= SUPABASE ================= -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+(function () {
+  "use strict";
+
+  /* =========================================================
+     CONFIG
+     ========================================================= */
+  var PROJECT_URL = "https://oopbgzdyzxghwbaqcfbp.supabase.co";
+  var PUBLISHABLE_KEY = "sb_publishable_FZPDwIvYvpS-WoABgQJwvg_FOYMMWL0";
+  var PHOTO_BUCKET = "mom-photos";
+  var SIGNED_URL_TTL = 3600;
+  var SIGNED_URL_RENEW_BEFORE = 300;   // renew 5 min before expiry
+  var PAGE_SIZE = 9;
+  var MESSAGE_PAGE_SIZE = 10;
+  var LOCATION_PAGE_SIZE = 10;
+  var CACHE_KEY = "momconnect.cache.v1";
+  var PREFS_KEY = "momconnect.prefs.v1";
+  var INSTALL_DISMISS_KEY = "momconnect.installDismissedAt";
+
+  /* =========================================================
+     DOM
+     ========================================================= */
+  var $ = function (id) { return document.getElementById(id); };
+
+  var bootView = $("boot-view");
+  var authView = $("auth-view");
+  var dashboardView = $("dashboard-view");
+  var offlineBanner = $("offline-banner");
+  var installBanner = $("install-banner");
+  var updateBanner = $("update-banner");
+  var toastStack = $("toast-stack");
+  var ptrIndicator = $("ptr-indicator");
+
+  var authForm = $("auth-form");
+  var authEmail = $("auth-email");
+  var authPassword = $("auth-password");
+  var rememberDevice = $("remember-device");
+  var authNotice = $("auth-notice");
+  var signinBtn = $("signin-btn");
+  var signupBtn = $("signup-btn");
+  var signinSpinner = $("signin-spinner");
+  var signupSpinner = $("signup-spinner");
+  var signinLabel = $("signin-label");
+  var signupLabel = $("signup-label");
+  var forgotBtn = $("forgot-btn");
+
+  var accountEmail = $("account-email");
+  var signoutBtn = $("signout-btn");
+  var refreshAllBtn = $("refresh-all-btn");
+  var refreshAllSpinner = $("refresh-all-spinner");
+  var refreshAllLabel = $("refresh-all-label");
+  var lastRefreshedEl = $("last-refreshed");
+  var lastRefreshedText = $("last-refreshed-text");
+  var freshnessDot = $("freshness-dot");
+  var welcomeText = $("welcome-text");
+
+  var tabPhotos = $("tab-photos");
+  var tabMessages = $("tab-messages");
+  var tabLocations = $("tab-locations");
+  var panelPhotos = $("panel-photos");
+  var panelMessages = $("panel-messages");
+  var panelLocations = $("panel-locations");
+
+  var photosContainer = $("photos-container");
+  var photosMoreWrap = $("photos-more-wrap");
+  var photosLoadMore = $("photos-load-more");
+  var refreshPhotosBtn = $("refresh-photos-btn");
+  var refreshPhotosSpinner = $("refresh-photos-spinner");
+  var refreshPhotosLabel = $("refresh-photos-label");
+  var badgePhotos = $("badge-photos");
+
+  var messagesContainer = $("messages-container");
+  var messagesMoreWrap = $("messages-more-wrap");
+  var messagesLoadMore = $("messages-load-more");
+  var refreshMessagesBtn = $("refresh-messages-btn");
+  var refreshMessagesSpinner = $("refresh-messages-spinner");
+  var refreshMessagesLabel = $("refresh-messages-label");
+  var badgeMessages = $("badge-messages");
+
+  var locationsContainer = $("locations-container");
+  var locationsMoreWrap = $("locations-more-wrap");
+  var locationsLoadMore = $("locations-load-more");
+  var refreshLocationsBtn = $("refresh-locations-btn");
+  var refreshLocationsSpinner = $("refresh-locations-spinner");
+  var refreshLocationsLabel = $("refresh-locations-label");
+  var badgeLocations = $("badge-locations");
+
+  var lightbox = $("lightbox");
+  var lightboxClose = $("lightbox-close");
+  var lightboxImg = $("lightbox-img");
+  var lightboxCaption = $("lightbox-caption");
+  var lightboxPrev = $("lightbox-prev");
+  var lightboxNext = $("lightbox-next");
+
+  var installAccept = $("install-accept");
+  var installDismiss = $("install-dismiss");
+  var updateReload = $("update-reload");
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  var supabaseClient = null;
+  var currentSession = null;
+  var currentEmail = "";
+  var deferredInstallPrompt = null;
+  var registeredSW = null;
+  var refreshAllPending = false;
+  var autoRefreshTimer = null;
+
+  var state = {
+    photos: { records: [], visible: 0, loading: false, error: null, signedUrls: {} },
+    messages: { records: [], visible: 0, loading: false, error: null },
+    locations: { records: [], visible: 0, loading: false, error: null }
+  };
+
+  var prefs = {
+    lastSeenMessagesAt: null,
+    lastSeenPhotosAt: null,
+    lastSeenLocationsAt: null,
+    autoRefreshMs: 5 * 60 * 1000
+  };
+
+  var signOutInProgress = false;
+  var lastFocusBeforeLightbox = null;
+  var activeTabId = "tab-photos";
+  var lightboxIndex = -1;
+
+  /* =========================================================
+     UTIL
+     ========================================================= */
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (typeof text === "string") n.textContent = text;
+    return n;
+  }
+  function clearNode(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function formatDate(v) {
+    if (!v) return "Date unavailable";
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return "Date unavailable";
+    try {
+      return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+    } catch (e) { return d.toISOString(); }
+  }
+  function toFiniteNumber(v) {
+    if (v === null || v === undefined || v === "") return NaN;
+    var n = typeof v === "number" ? v : Number(v);
+    return isFinite(n) ? n : NaN;
+  }
+  function isValidLatLng(lat, lng) {
+    return isFinite(lat) && isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+  }
+  function errorText(err) {
+    if (!err) return "Unknown error.";
+    if (typeof err === "string") return err;
+    if (err.message) { return err.details ? err.message + " — " + err.details : err.message; }
+    if (err.error_description) return err.error_description;
+    if (err.error) return String(err.error);
+    try { return JSON.stringify(err); } catch (e) { return "Unknown error."; }
+  }
+  function isNetworkError(err) {
+    if (!err) return false;
+    var m = (err.message || String(err)).toLowerCase();
+    return m.indexOf("fetch") !== -1 || m.indexOf("network") !== -1 || m.indexOf("failed to load") !== -1 || m.indexOf("offline") !== -1;
+  }
+  function isOnline() { return navigator.onLine !== false; }
+  function showToast(msg, type) {
+    var t = el("div", "toast " + (type || ""));
+    t.textContent = msg;
+    toastStack.appendChild(t);
+    setTimeout(function () {
+      t.style.opacity = "0";
+      t.style.transition = "opacity 0.3s ease";
+      setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 320);
+    }, 3200);
+  }
+
+  /* =========================================================
+     PERSISTENT CACHE
+     ========================================================= */
+  function saveCache() {
+    try {
+      var payload = {
+        savedAt: Date.now(),
+        email: currentEmail,
+        userId: currentSession && currentSession.user ? currentSession.user.id : null,
+        data: {
+          photos: state.photos.records.map(sanitizeRowForCache),
+          messages: state.messages.records.map(sanitizeRowForCache),
+          locations: state.locations.records.map(sanitizeRowForCache)
+        }
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+    } catch (e) { /* quota / disabled */ }
+  }
+  function sanitizeRowForCache(row) {
+    if (!row || typeof row !== "object") return row;
+    var out = {};
+    for (var k in row) {
+      if (Object.prototype.hasOwnProperty.call(row, k)) {
+        var v = row[k];
+        if (typeof v === "string" || typeof v === "number" || typeof v === "boolean" || v === null) out[k] = v;
+      }
+    }
+    return out;
+  }
+  function loadCache() {
+    try {
+      var raw = localStorage.getItem(CACHE_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+  function clearCache() {
+    try { localStorage.removeItem(CACHE_KEY); } catch (e) {}
+  }
+  function hydrateFromCache(cache) {
+    if (!cache || !cache.data) return false;
+    if (cache.email) { currentEmail = cache.email; accountEmail.textContent = cache.email; accountEmail.title = cache.email; }
+    if (Array.isArray(cache.data.messages)) state.messages.records = cache.data.messages;
+    if (Array.isArray(cache.data.locations)) state.locations.records = cache.data.locations;
+    if (Array.isArray(cache.data.photos)) state.photos.records = cache.data.photos;
+    state.messages.visible = Math.min(MESSAGE_PAGE_SIZE, state.messages.records.length);
+    state.locations.visible = Math.min(LOCATION_PAGE_SIZE, state.locations.records.length);
+    state.photos.visible = Math.min(PAGE_SIZE, state.photos.records.length);
+    if (cache.savedAt) {
+      var d = new Date(cache.savedAt);
+      lastRefreshedText.textContent = "Cached from " + d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+      freshnessDot.classList.add("stale");
+    }
+    return true;
+  }
+
+  function savePrefs() {
+    try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {}
+  }
+  function loadPrefs() {
+    try {
+      var raw = localStorage.getItem(PREFS_KEY);
+      if (raw) {
+        var p = JSON.parse(raw);
+        for (var k in prefs) if (k in p) prefs[k] = p[k];
+      }
+    } catch (e) {}
+  }
+
+  /* =========================================================
+     PWA: manifest + service worker via Blob
+     ========================================================= */
+  function buildManifestBlobUrl() {
+    var manifest = {
+      name: "Mom Connect",
+      short_name: "Mom Connect",
+      description: "Private family sharing dashboard.",
+      start_url: "./",
+      scope: "./",
+      display: "standalone",
+      background_color: "#faf7f2",
+      theme_color: "#8b7bb8",
+      orientation: "portrait-primary",
+      icons: [
+        {
+          src: "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#8b7bb8"/><text x="256" y="352" font-size="280" text-anchor="middle" fill="white" font-family="sans-serif">💜</text></svg>'
+          ),
+          sizes: "any",
+          type: "image/svg+xml",
+          purpose: "any maskable"
+        }
+      ]
+    };
+    var blob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+    return URL.createObjectURL(blob);
+  }
+
+  function attachManifest() {
+    var link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = buildManifestBlobUrl();
+    document.head.appendChild(link);
+  }
+
+  function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    // Inline SW via Blob
+    var swCode = [
+      "// Mom Connect inline SW",
+      "var CACHE = 'momconnect-v1';",
+      "var ASSETS = [];",
+      "self.addEventListener('install', function (e) {",
+      "  self.skipWaiting();",
+      "});",
+      "self.addEventListener('activate', function (e) {",
+      "  e.waitUntil((async function(){",
+      "    var keys = await caches.keys();",
+      "    await Promise.all(keys.filter(function(k){return k!==CACHE}).map(function(k){return caches.delete(k)}));",
+      "    await self.clients.claim();",
+      "  })());",
+      "});",
+      "self.addEventListener('fetch', function (e) {",
+      "  var req = e.request;",
+      "  if (req.method !== 'GET') return;",
+      "  var url = new URL(req.url);",
+      "  // Never cache Supabase Auth or API responses or storage signed URLs",
+      "  if (url.hostname.indexOf('supabase') !== -1) return;",
+      "  // For same-origin navigations, network-first with cache fallback",
+      "  if (req.mode === 'navigate') {",
+      "    e.respondWith((async function(){",
+      "      try {",
+      "        var fresh = await fetch(req);",
+      "        return fresh;",
+      "      } catch (err) {",
+      "        var cache = await caches.open(CACHE);",
+      "        var cached = await cache.match(req);",
+      "        return cached || Response.error();",
+      "      }",
+      "    })());",
+      "    return;",
+      "  }",
+      "  // Cache-first for CDN scripts/styles/fonts",
+      "  if (url.hostname === 'cdn.jsdelivr.net' || url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('.woff2')) {",
+      "    e.respondWith((async function(){",
+      "      var cache = await caches.open(CACHE);",
+      "      var cached = await cache.match(req);",
+      "      if (cached) return cached;",
+      "      try {",
+      "        var res = await fetch(req);",
+      "        if (res && res.status === 200) cache.put(req, res.clone());",
+      "        return res;",
+      "      } catch (err) {",
+      "        return cached || Response.error();",
+      "      }",
+      "    })());",
+      "  }",
+      "});"
+    ].join("\n");
+    try {
+      var blob = new Blob([swCode], { type: "text/javascript" });
+      var swUrl = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(swUrl).then(function (reg) {
+        registeredSW = reg;
+        reg.addEventListener("updatefound", function () {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener("statechange", function () {
+            if (nw.state === "installed" && navigator.serviceWorker.controller) {
+              updateBanner.classList.add("is-visible");
+            }
+          });
+        });
+      }).catch(function () { /* SW registration may fail on file:// */ });
+    } catch (e) { /* ignore */ }
+  }
+
+  /* =========================================================
+     INSTALL PROMPT
+     ========================================================= */
+  function shouldShowInstall() {
+    var dismissed = 0;
+    try { dismissed = parseInt(localStorage.getItem(INSTALL_DISMISS_KEY) || "0", 10) || 0; } catch (e) {}
+    // Don't show again for 14 days after dismiss
+    if (dismissed && Date.now() - dismissed < 14 * 24 * 3600 * 1000) return false;
+    // Already installed?
+    if (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) return false;
+    return true;
+  }
+
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    if (shouldShowInstall()) installBanner.classList.add("is-visible");
+  });
+
+  installAccept.addEventListener("click", function () {
+    installBanner.classList.remove("is-visible");
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(function () {
+      deferredInstallPrompt = null;
+    });
+  });
+  installDismiss.addEventListener("click", function () {
+    installBanner.classList.remove("is-visible");
+    try { localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now())); } catch (e) {}
+  });
+
+  updateReload.addEventListener("click", function () {
+    if (registeredSW && registeredSW.waiting) {
+      registeredSW.waiting.postMessage({ type: "SKIP_WAITING" });
+    }
+    location.reload();
+  });
+
+  /* =========================================================
+     ONLINE / OFFLINE
+     ========================================================= */
+  function updateOnlineUI() {
+    if (isOnline()) {
+      offlineBanner.classList.remove("is-visible");
+      if (currentSession) showToast("Back online", "success");
+    } else {
+      offlineBanner.classList.add("is-visible");
+    }
+  }
+  window.addEventListener("online", updateOnlineUI);
+  window.addEventListener("offline", updateOnlineUI);
+
+  /* =========================================================
+     AUTH INIT
+     ========================================================= */
+  function fatalBoot(msg) {
+    bootView.style.display = "flex";
+    bootView.setAttribute("role", "alert");
+    clearNode(bootView);
+    var logo = el("div", "brand-logo", "💜");
+    logo.setAttribute("aria-hidden", "true");
+    bootView.appendChild(logo);
+    var box = el("div", "fatal-box");
+    box.appendChild(el("strong", null, "Mom Connect could not start"));
+    box.appendChild(el("p", null, msg));
+    bootView.appendChild(box);
+  }
+
+  attachManifest();
+  registerServiceWorker();
+  loadPrefs();
+
+  if (typeof window.supabase === "undefined" || typeof window.supabase.createClient !== "function") {
+    fatalBoot("The Supabase library failed to load. This usually means a connection problem or that cdn.jsdelivr.net is blocked. Reload the page once online.");
+    return;
+  }
+  try {
+    supabaseClient = window.supabase.createClient(PROJECT_URL, PUBLISHABLE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage,
+        storageKey: "momconnect.auth.v1",
+        flowType: "pkce"
+      }
+    });
+  } catch (e) {
+    fatalBoot("Supabase client could not be created: " + errorText(e));
+    return;
+  }
+
+  /* =========================================================
+     VIEW SWITCHING
+     ========================================================= */
+  function showBoot() { bootView.style.display = "flex"; authView.style.display = "none"; dashboardView.style.display = "none"; }
+  function showAuth() { bootView.style.display = "none"; dashboardView.style.display = "none"; authView.style.display = "block"; }
+  function showDashboard() { bootView.style.display = "none"; authView.style.display = "none"; dashboardView.style.display = "flex"; }
+
+  function clearDashboardContent() {
+    clearNode(photosContainer);
+    clearNode(messagesContainer);
+    clearNode(locationsContainer);
+    state.photos = { records: [], visible: 0, loading: false, error: null, signedUrls: {} };
+    state.messages = { records: [], visible: 0, loading: false, error: null };
+    state.locations = { records: [], visible: 0, loading: false, error: null };
+    photosMoreWrap.hidden = true;
+    messagesMoreWrap.hidden = true;
+    locationsMoreWrap.hidden = true;
+    badgePhotos.hidden = true;
+    badgeMessages.hidden = true;
+    badgeLocations.hidden = true;
+    accountEmail.textContent = "";
+    lastRefreshedText.textContent = "Not refreshed yet";
+    freshnessDot.classList.remove("stale");
+    closeLightbox();
+  }
+
+  /* =========================================================
+     AUTH UI
+     ========================================================= */
+  function setAuthBusy(mode) {
+    var busy = !!mode;
+    signinBtn.disabled = busy;
+    signupBtn.disabled = busy;
+    forgotBtn.disabled = busy;
+    authEmail.disabled = busy;
+    authPassword.disabled = busy;
+    signinSpinner.style.display = mode === "signin" ? "inline-block" : "none";
+    signupSpinner.style.display = mode === "signup" ? "inline-block" : "none";
+    signinLabel.textContent = mode === "signin" ? "Signing in…" : "Sign In";
+    signupLabel.textContent = mode === "signup" ? "Creating account…" : "Create an Account";
+    forgotBtn.textContent = mode === "reset" ? "Sending reset email…" : "Forgot your password?";
+  }
+
+  function showNotice(type, msg) {
+    clearNode(authNotice);
+    authNotice.className = "notice notice-" + type;
+    var icon = el("span", "notice-icon");
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = type === "error" ? "⚠️" : (type === "success" ? "✅" : (type === "warning" ? "⚠️" : "ℹ️"));
+    var body = el("div");
+    if (Array.isArray(msg)) msg.forEach(function (m) { body.appendChild(el("p", null, String(m))); });
+    else body.appendChild(el("p", null, String(msg)));
+    authNotice.appendChild(icon);
+    authNotice.appendChild(body);
+    authNotice.classList.remove("notice-hidden");
+  }
+  function hideNotice() { clearNode(authNotice); authNotice.classList.add("notice-hidden"); }
+
+  /* =========================================================
+     SIGN IN / UP / RESET / OUT
+     ========================================================= */
+  function handleSignIn(evt) {
+    evt.preventDefault();
+    hideNotice();
+    var email = authEmail.value.trim();
+    var password = authPassword.value;
+    if (!email || email.indexOf("@") === -1) { showNotice("error", "Please enter a valid email address."); authEmail.focus(); return; }
+    if (!password) { showNotice("error", "Please enter your password."); authPassword.focus(); return; }
+
+    var remember = rememberDevice.checked;
+
+    setAuthBusy("signin");
+
+    supabaseClient.auth.signInWithPassword({ email: email, password: password })
+      .then(function (res) {
+        setAuthBusy(null);
+        if (res.error) {
+          var m = res.error.message || "Sign in failed.";
+          if (m.toLowerCase().indexOf("email not confirmed") !== -1) {
+            showNotice("warning", "Your email hasn't been confirmed yet. Please open the confirmation email and try again.");
+          } else if (m.toLowerCase().indexOf("invalid login") !== -1) {
+            showNotice("error", "The email or password is incorrect. Please check and try again.");
+          } else if (isNetworkError(res.error)) {
+            showNotice("error", "Network problem: could not reach Supabase. Check your connection and try again.");
+          } else {
+            showNotice("error", "Could not sign in: " + m);
+          }
+          return;
+        }
+        // Persist remember preference
+        prefs.rememberDevice = remember;
+        savePrefs();
+        authPassword.value = "";
+        // Auth event will switch the view
+      })
+      .catch(function (err) {
+        setAuthBusy(null);
+        showNotice(isNetworkError(err) ? "error" : "error",
+          isNetworkError(err)
+            ? "Network problem: could not reach Supabase. Check your connection and try again."
+            : "Unexpected sign-in error: " + errorText(err));
+      });
+  }
+
+  function handleSignUp() {
+    hideNotice();
+    var email = authEmail.value.trim();
+    var password = authPassword.value;
+    if (!email || email.indexOf("@") === -1) { showNotice("error", "Please enter a valid email address before creating an account."); authEmail.focus(); return; }
+    if (!password || password.length < 6) { showNotice("error", "Please choose a password with at least 6 characters."); authPassword.focus(); return; }
+
+    setAuthBusy("signup");
+    supabaseClient.auth.signUp({ email: email, password: password })
+      .then(function (res) {
+        setAuthBusy(null);
+        if (res.error) {
+          var m = res.error.message || "Registration failed.";
+          if (m.toLowerCase().indexOf("already registered") !== -1 || m.toLowerCase().indexOf("already exists") !== -1) {
+            showNotice("warning", "An account with this email may already exist. Try signing in instead, or use “Forgot your password?”.");
+          } else {
+            showNotice("error", "Could not create the account: " + m);
+          }
+          return;
+        }
+        var hasSession = res.data && res.data.session;
+        if (hasSession) {
+          showNotice("success", "Account created. Signing you in…");
+        } else {
+          showNotice("success", [
+            "Account created. A confirmation email has been sent to " + email + ".",
+            "Please open that email and confirm your address, then return here and sign in."
+          ]);
+          authPassword.value = "";
+        }
+      })
+      .catch(function (err) {
+        setAuthBusy(null);
+        showNotice("error", isNetworkError(err) ? "Network problem: could not reach Supabase. Check your connection." : "Unexpected registration error: " + errorText(err));
+      });
+  }
+
+  function handleForgotPassword() {
+    hideNotice();
+    var email = authEmail.value.trim();
+    if (!email || email.indexOf("@") === -1) {
+      showNotice("info", "Type your email address in the field above, then tap “Forgot your password?” again.");
+      authEmail.focus();
+      return;
+    }
+    setAuthBusy("reset");
+    supabaseClient.auth.resetPasswordForEmail(email)
+      .then(function (res) {
+        setAuthBusy(null);
+        if (res.error) { showNotice("error", "Could not send the reset email: " + (res.error.message || errorText(res.error))); return; }
+        showNotice("success", "If an account exists for " + email + ", a password-reset email is on its way. Please check your inbox (and spam folder).");
+      })
+      .catch(function (err) {
+        setAuthBusy(null);
+        showNotice("error", isNetworkError(err) ? "Network problem: could not reach Supabase." : "Unexpected error: " + errorText(err));
+      });
+  }
+
+  function handleSignOut() {
+    if (signOutInProgress) return;
+    signOutInProgress = true;
+    signoutBtn.disabled = true;
+    signoutBtn.textContent = "Signing out…";
+    clearDashboardContent();
+    closeLightbox();
+
+    supabaseClient.auth.signOut()
+      .then(function (res) {
+        if (res && res.error) {
+          showAuth();
+          showNotice("warning", "Signed out locally. Server reported: " + (res.error.message || errorText(res.error)));
+        } else {
+          showAuth();
+        }
+        clearCache();
+      })
+      .catch(function (err) {
+        showAuth();
+        clearCache();
+        if (isNetworkError(err)) {
+          showNotice("warning", "You were signed out on this device, but the server could not be reached.");
+        } else {
+          showNotice("warning", "Signed out on this device. Server sign-out reported: " + errorText(err));
+        }
+      })
+      .then(function () {
+        signOutInProgress = false;
+        signoutBtn.disabled = false;
+        signoutBtn.textContent = "Sign Out";
+        authPassword.value = "";
+      });
+  }
+
+  /* =========================================================
+     SECTION UI HELPERS
+     ========================================================= */
+  function sectionState(container, opts) {
+    clearNode(container);
+    var box = el("div", "section-state");
+    if (opts.kind === "error") box.classList.add("is-error");
+    var icon = el("span", "state-icon", opts.icon || "ℹ️");
+    icon.setAttribute("aria-hidden", "true");
+    box.appendChild(icon);
+    if (opts.title) box.appendChild(el("h3", null, opts.title));
+    if (opts.message) {
+      if (Array.isArray(opts.message)) opts.message.forEach(function (m) { box.appendChild(el("p", null, String(m))); });
+      else box.appendChild(el("p", null, String(opts.message)));
+    }
+    if (opts.onRetry && opts.retryLabel) {
+      var r = el("button", "btn btn-secondary btn-small", opts.retryLabel);
+      r.type = "button";
+      r.addEventListener("click", opts.onRetry);
+      box.appendChild(r);
+    }
+    container.appendChild(box);
+  }
+
+  function skeletonGrid(container, count) {
+    clearNode(container);
+    var grid = el("div", "card-grid");
+    for (var i = 0; i < count; i++) {
+      var card = el("div", "skeleton-card");
+      var img = el("div", "skeleton skeleton-photo");
+      card.appendChild(img);
+      var t1 = el("div", "skeleton skeleton-text");
+      var t2 = el("div", "skeleton skeleton-text short");
+      var t3 = el("div", "skeleton skeleton-text tiny");
+      card.appendChild(t1); card.appendChild(t2); card.appendChild(t3);
+      grid.appendChild(card);
+    }
+    container.appendChild(grid);
+  }
+
+  function setSectionBusy(kind) {
+    var map = {
+      photos: { btn: refreshPhotosBtn, spinner: refreshPhotosSpinner, label: refreshPhotosLabel, state: state.photos },
+      messages: { btn: refreshMessagesBtn, spinner: refreshMessagesSpinner, label: refreshMessagesLabel, state: state.messages },
+      locations: { btn: refreshLocationsBtn, spinner: refreshLocationsSpinner, label: refreshLocationsLabel, state: state.locations }
+    }[kind];
+    if (!map) return;
+    map.btn.disabled = map.state.loading;
+    map.spinner.style.display = map.state.loading ? "inline-block" : "none";
+    map.label.textContent = map.state.loading ? "Loading…" : "Refresh";
+  }
+
+  function updateAllBusyUI() {
+    setSectionBusy("photos");
+    setSectionBusy("messages");
+    setSectionBusy("locations");
+    var any = state.photos.loading || state.messages.loading || state.locations.loading;
+    refreshAllBtn.disabled = any;
+    refreshAllSpinner.style.display = any ? "inline-block" : "none";
+    refreshAllLabel.textContent = any ? "Refreshing…" : "Refresh All";
+    photosLoadMore.disabled = state.photos.loading;
+    messagesLoadMore.disabled = state.messages.loading;
+    locationsLoadMore.disabled = state.locations.loading;
+  }
+
+  function updateBadge(badge, count, isUnread) {
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = String(count);
+      badge.hidden = false;
+      if (isUnread) badge.classList.add("is-unread");
+      else badge.classList.remove("is-unread");
+    } else {
+      badge.hidden = true;
+      badge.textContent = "";
+      badge.classList.remove("is-unread");
+    }
+  }
+
+  function markSeen(kind) {
+    var now = new Date().toISOString();
+    if (kind === "messages") { prefs.lastSeenMessagesAt = now; updateBadge(badgeMessages, state.messages.records.length, false); }
+    if (kind === "photos") { prefs.lastSeenPhotosAt = now; updateBadge(badgePhotos, state.photos.records.length, false); }
+    if (kind === "locations") { prefs.lastSeenLocationsAt = now; updateBadge(badgeLocations, state.locations.records.length, false); }
+    savePrefs();
+  }
+
+  function countUnread(records, lastSeen) {
+    if (!lastSeen) return records.length;
+    var t = Date.parse(lastSeen);
+    if (isNaN(t)) return records.length;
+    var c = 0;
+    records.forEach(function (r) {
+      var rt = Date.parse(r.created_at);
+      if (!isNaN(rt) && rt > t) c++;
+    });
+    return c;
+  }
+
+  function refreshBadges() {
+    var mUnread = countUnread(state.messages.records, prefs.lastSeenMessagesAt);
+    var pUnread = countUnread(state.photos.records, prefs.lastSeenPhotosAt);
+    var lUnread = countUnread(state.locations.records, prefs.lastSeenLocationsAt);
+    updateBadge(badgeMessages, state.messages.records.length, mUnread > 0 && activeTabId !== "tab-messages");
+    updateBadge(badgePhotos, state.photos.records.length, pUnread > 0 && activeTabId !== "tab-photos");
+    updateBadge(badgeLocations, state.locations.records.length, lUnread > 0 && activeTabId !== "tab-locations");
+  }
+
+  /* =========================================================
+     DATA: MESSAGES
+     ========================================================= */
+  function loadMessages() {
+    if (state.messages.loading) return Promise.resolve();
+    state.messages.loading = true;
+    state.messages.error = null;
+    updateAllBusyUI();
+    if (state.messages.records.length === 0) skeletonGrid(messagesContainer, 4);
+
+    return supabaseClient
+      .from("mom_messages")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(function (res) {
+        state.messages.loading = false;
+        if (res.error) {
+          state.messages.error = res.error;
+          if (state.messages.records.length === 0) {
+            sectionState(messagesContainer, {
+              kind: "error", icon: "⚠️", title: "Messages could not be loaded",
+              message: [errorText(res.error), "This may be a permissions (Row Level Security) or network issue."],
+              retryLabel: "Retry Messages", onRetry: loadMessages
+            });
+            messagesMoreWrap.hidden = true;
+          }
+          updateBadge(badgeMessages, state.messages.records.length);
+          updateAllBusyUI();
+          return;
+        }
+        var rows = Array.isArray(res.data) ? res.data : [];
+        state.messages.records = rows;
+        state.messages.visible = Math.min(MESSAGE_PAGE_SIZE, rows.length);
+        if (rows.length === 0) {
+          sectionState(messagesContainer, {
+            kind: "empty", icon: "✉️", title: "No messages are visible right now",
+            message: "The messages query succeeded, but the existing Supabase access policies did not return any messages for this account."
+          });
+        } else {
+          renderMessages();
+        }
+        refreshBadges();
+        updateAllBusyUI();
+      })
+      .catch(function (err) {
+        state.messages.loading = false;
+        state.messages.error = err;
+        if (state.messages.records.length === 0) {
+          sectionState(messagesContainer, {
+            kind: "error", icon: "⚠️", title: "Messages could not be loaded",
+            message: isNetworkError(err) ? "A network problem prevented loading messages. Check your connection and try again." : errorText(err),
+            retryLabel: "Retry Messages", onRetry: loadMessages
+          });
+        }
+        messagesMoreWrap.hidden = true;
+        updateAllBusyUI();
+      });
+  }
+
+  function renderMessages() {
+    clearNode(messagesContainer);
+    var grid = el("div", "card-grid");
+    state.messages.records.slice(0, state.messages.visible).forEach(function (row) { grid.appendChild(buildMessageCard(row)); });
+    messagesContainer.appendChild(grid);
+    if (state.messages.records.length > state.messages.visible) {
+      messagesMoreWrap.hidden = false;
+      messagesLoadMore.textContent = "Load More Messages (" + (state.messages.records.length - state.messages.visible) + " remaining)";
+    } else {
+      messagesMoreWrap.hidden = true;
+    }
+  }
+
+  function buildMessageCard(row) {
+    var card = el("article", "card");
+    var t = (typeof row.title === "string") ? row.title.trim() : "";
+    var h = el("h3", "message-title", t || "A message for you");
+    if (!t) h.classList.add("is-fallback");
+    card.appendChild(h);
+    var raw = (typeof row.content === "string") ? row.content : "";
+    var content = el("p", "message-content", raw || "This message has no text content.");
+    card.appendChild(content);
+    var collapsible = raw.length > 600 || (raw.match(/\n/g) || []).length > 8;
+    if (collapsible) {
+      content.classList.add("is-collapsed");
+      var btn = el("button", "expand-btn", "Show full message");
+      btn.type = "button";
+      btn.addEventListener("click", function () {
+        var collapsed = content.classList.toggle("is-collapsed");
+        btn.textContent = collapsed ? "Show full message" : "Show less";
+      });
+      card.appendChild(btn);
+    }
+    card.appendChild(el("div", "card-meta", formatDate(row.created_at)));
+    return card;
+  }
+
+  /* =========================================================
+     DATA: LOCATIONS
+     ========================================================= */
+  function loadLocations() {
+    if (state.locations.loading) return Promise.resolve();
+    state.locations.loading = true;
+    state.locations.error = null;
+    updateAllBusyUI();
+    if (state.locations.records.length === 0) skeletonGrid(locationsContainer, 4);
+
+    return supabaseClient
+      .from("mom_location_updates")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(function (res) {
+        state.locations.loading = false;
+        if (res.error) {
+          state.locations.error = res.error;
+          if (state.locations.records.length === 0) {
+            sectionState(locationsContainer, {
+              kind: "error", icon: "⚠️", title: "Location updates could not be loaded",
+              message: [errorText(res.error), "This may be a permissions (Row Level Security) or network issue."],
+              retryLabel: "Retry Locations", onRetry: loadLocations
+            });
+            locationsMoreWrap.hidden = true;
+          }
+          updateAllBusyUI();
+          return;
+        }
+        var rows = Array.isArray(res.data) ? res.data : [];
+        state.locations.records = rows;
+        state.locations.visible = Math.min(LOCATION_PAGE_SIZE, rows.length);
+        if (rows.length === 0) {
+          sectionState(locationsContainer, {
+            kind: "empty", icon: "📍", title: "No location updates are visible right now",
+            message: "The locations query succeeded, but the existing Supabase access policies did not return any location updates for this account."
+          });
+        } else {
+          renderLocations();
+        }
+        refreshBadges();
+        updateAllBusyUI();
+      })
+      .catch(function (err) {
+        state.locations.loading = false;
+        state.locations.error = err;
+        if (state.locations.records.length === 0) {
+          sectionState(locationsContainer, {
+            kind: "error", icon: "⚠️", title: "Location updates could not be loaded",
+            message: isNetworkError(err) ? "A network problem prevented loading location updates." : errorText(err),
+            retryLabel: "Retry Locations", onRetry: loadLocations
+          });
+        }
+        locationsMoreWrap.hidden = true;
+        updateAllBusyUI();
+      });
+  }
+
+  function renderLocations() {
+    clearNode(locationsContainer);
+    var grid = el("div", "card-grid");
+    state.locations.records.slice(0, state.locations.visible).forEach(function (row) { grid.appendChild(buildLocationCard(row)); });
+    locationsContainer.appendChild(grid);
+    if (state.locations.records.length > state.locations.visible) {
+      locationsMoreWrap.hidden = false;
+      locationsLoadMore.textContent = "Load More Updates (" + (state.locations.records.length - state.locations.visible) + " remaining)";
+    } else {
+      locationsMoreWrap.hidden = true;
+    }
+  }
+
+  function buildLocationCard(row) {
+    var card = el("article", "card");
+    var lat = toFiniteNumber(row.latitude);
+    var lng = toFiniteNumber(row.longitude);
+    var acc = toFiniteNumber(row.accuracy_meters);
+    if (isValidLatLng(lat, lng)) {
+      card.appendChild(el("p", "location-coords", lat.toFixed(5) + ", " + lng.toFixed(5)));
+      card.appendChild(el("p", "location-accuracy", isFinite(acc) ? "Accuracy: about " + Math.round(acc) + " metres" : "Accuracy: not provided"));
+      var link = el("a", "map-link", "Open in Google Maps ↗");
+      link.href = "https://www.google.com/maps?q=" + encodeURIComponent(lat) + "," + encodeURIComponent(lng);
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      card.appendChild(link);
+    } else {
+      card.appendChild(el("p", "location-invalid", "This location update does not contain valid coordinates, so no map link is shown."));
+    }
+    card.appendChild(el("div", "card-meta", formatDate(row.created_at)));
+    return card;
+  }
+
+  /* =========================================================
+     DATA: PHOTOS (with signed URL auto-renew)
+     ========================================================= */
+  function loadPhotos() {
+    if (state.photos.loading) return Promise.resolve();
+    state.photos.loading = true;
+    state.photos.error = null;
+    updateAllBusyUI();
+    if (state.photos.records.length === 0) skeletonGrid(photosContainer, 6);
+
+    return supabaseClient
+      .from("mom_photos")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .then(function (res) {
+        if (res.error) {
+          state.photos.loading = false;
+          state.photos.error = res.error;
+          if (state.photos.records.length === 0) {
+            state.photos.records = [];
+            state.photos.visible = 0;
+            state.photos.signedUrls = {};
+            sectionState(photosContainer, {
+              kind: "error", icon: "⚠️", title: "Photos could not be loaded",
+              message: [errorText(res.error), "This may be a permissions (Row Level Security) or network issue."],
+              retryLabel: "Retry Photos", onRetry: loadPhotos
+            });
+            photosMoreWrap.hidden = true;
+          }
+          updateAllBusyUI();
+          return;
+        }
+        var rows = Array.isArray(res.data) ? res.data : [];
+        state.photos.records = rows;
+        state.photos.visible = Math.min(PAGE_SIZE, rows.length);
+        state.photos.signedUrls = {};
+        if (rows.length === 0) {
+          state.photos.loading = false;
+          sectionState(photosContainer, {
+            kind: "empty", icon: "🖼️", title: "No photos are visible right now",
+            message: "The photo metadata query succeeded, but the existing Supabase access policies did not return any photo records for this account."
+          });
+          photosMoreWrap.hidden = true;
+          updateAllBusyUI();
+          return;
+        }
+        renderPhotos();
+        refreshBadges();
+        return resolveSignedUrlsForVisiblePhotos().then(function () {
+          state.photos.loading = false;
+          updateAllBusyUI();
+          renderPhotos();
+        });
+      })
+      .catch(function (err) {
+        state.photos.loading = false;
+        state.photos.error = err;
+        if (state.photos.records.length === 0) {
+          sectionState(photosContainer, {
+            kind: "error", icon: "⚠️", title: "Photos could not be loaded",
+            message: isNetworkError(err) ? "A network problem prevented loading photos." : errorText(err),
+            retryLabel: "Retry Photos", onRetry: loadPhotos
+          });
+        }
+        photosMoreWrap.hidden = true;
+        updateAllBusyUI();
+      });
+  }
+
+  function resolveSignedUrlsForVisiblePhotos() {
+    var now = Date.now();
+    var visible = state.photos.records.slice(0, state.photos.visible);
+    var tasks = visible.map(function (row) {
+      var entry = state.photos.signedUrls[row.id];
+      // Reuse if fresh enough
+      if (entry && entry.status === "ok" && entry.url && entry.expiresAt && (entry.expiresAt - now) > SIGNED_URL_RENEW_BEFORE * 1000) {
+        return Promise.resolve();
+      }
+      var path = row.storage_path;
+      if (typeof path !== "string" || path.trim() === "") {
+        state.photos.signedUrls[row.id] = { status: "error", message: "This photo record has no storage path, so it cannot be displayed." };
+        return Promise.resolve();
+      }
+      return supabaseClient.storage.from(PHOTO_BUCKET).createSignedUrl(path, SIGNED_URL_TTL)
+        .then(function (res) {
+          if (res.error || !res.data || !res.data.signedUrl) {
+            state.photos.signedUrls[row.id] = {
+              status: "error",
+              message: res.error ? errorText(res.error) : "Supabase did not return a signed URL for this photo."
+            };
+          } else {
+            state.photos.signedUrls[row.id] = {
+              status: "ok",
+              url: res.data.signedUrl,
+              expiresAt: now + SIGNED_URL_TTL * 1000
+            };
+          }
+        })
+        .catch(function (err) {
+          state.photos.signedUrls[row.id] = {
+            status: "error",
+            message: isNetworkError(err) ? "A network problem prevented creating the secure image link." : errorText(err)
+          };
+        });
+    });
+    return Promise.all(tasks);
+  }
+
+  function scheduleSignedUrlRenewal() {
+    setInterval(function () {
+      if (!currentSession) return;
+      if (document.visibilityState !== "visible") return;
+      if (state.photos.loading || state.photos.records.length === 0) return;
+      var now = Date.now();
+      var needs = state.photos.records.slice(0, state.photos.visible).some(function (r) {
+        var e = state.photos.signedUrls[r.id];
+        return !e || e.status !== "ok" || !e.expiresAt || (e.expiresAt - now) < SIGNED_URL_RENEW_BEFORE * 1000;
+      });
+      if (needs) {
+        resolveSignedUrlsForVisiblePhotos().then(function () { renderPhotos(); });
+      }
+    }, 60 * 1000);
+  }
+
+  function renderPhotos() {
+    clearNode(photosContainer);
+    var grid = el("div", "card-grid");
+    state.photos.records.slice(0, state.photos.visible).forEach(function (row) { grid.appendChild(buildPhotoCard(row)); });
+    photosContainer.appendChild(grid);
+    if (state.photos.records.length > state.photos.visible) {
+      photosMoreWrap.hidden = false;
+      photosLoadMore.textContent = "Load More Photos (" + (state.photos.records.length - state.photos.visible) + " remaining)";
+    } else {
+      photosMoreWrap.hidden = true;
+    }
+  }
+
+  function buildPhotoCard(row) {
+    var card = el("article", "card photo-card");
+    var frame = el("div", "photo-frame");
+    var caption = (typeof row.caption === "string") ? row.caption.trim() : "";
+    var altText = caption || "Shared family photo";
+    var entry = state.photos.signedUrls[row.id];
+
+    if (entry && entry.status === "ok" && entry.url) {
+      var trigger = el("button", "photo-trigger");
+      trigger.type = "button";
+      trigger.setAttribute("aria-label", "View larger: " + altText);
+      var img = document.createElement("img");
+      img.src = entry.url;
+      img.alt = altText;
+      img.loading = "lazy";
+      img.decoding = "async";
+      img.addEventListener("load", function () { img.classList.add("is-loaded"); });
+      img.addEventListener("error", function () {
+        clearNode(frame);
+        frame.appendChild(buildPhotoPlaceholder(
+          "The secure image link was created, but the image itself failed to load. The link may have expired or the file may be unavailable.",
+          "Refresh Photos", loadPhotos
+        ));
+      });
+      trigger.appendChild(img);
+      trigger.addEventListener("click", function () {
+        openLightboxByPhotoId(row.id);
+      });
+      frame.appendChild(trigger);
+    } else if (entry && entry.status === "error") {
+      frame.appendChild(buildPhotoPlaceholder(
+        entry.message + " Storage access policies or an incorrect stored path may be responsible.",
+        "Try Again",
+        function () {
+          delete state.photos.signedUrls[row.id];
+          resolveSignedUrlsForVisiblePhotos().then(function () { renderPhotos(); });
+        }
+      ));
+    } else {
+      var wrap = el("div", "photo-placeholder");
+      var sp = el("div", "spinner");
+      sp.setAttribute("aria-hidden", "true");
+      wrap.appendChild(sp);
+      wrap.appendChild(el("span", null, "Preparing secure image…"));
+      frame.appendChild(wrap);
+    }
+
+    card.appendChild(frame);
+    var info = el("div", "photo-info");
+    var cap = el("p", "photo-caption");
+    if (caption) cap.textContent = caption;
+    else { cap.textContent = "No caption"; cap.classList.add("is-empty"); }
+    info.appendChild(cap);
+    info.appendChild(el("div", "card-meta", formatDate(row.created_at)));
+    card.appendChild(info);
+    return card;
+  }
+
+  function buildPhotoPlaceholder(msg, label, onClick) {
+    var ph = el("div", "photo-placeholder");
+    var icon = el("span", "ph-icon", "🖼️");
+    icon.setAttribute("aria-hidden", "true");
+    ph.appendChild(icon);
+    ph.appendChild(el("span", null, msg));
+    if (label && onClick) {
+      var b = el("button", "btn btn-secondary btn-small", label);
+      b.type = "button";
+      b.addEventListener("click", onClick);
+      ph.appendChild(b);
+    }
+    return ph;
+  }
+
+  /* =========================================================
+     LIGHTBOX
+     ========================================================= */
+  function openLightboxByPhotoId(photoId) {
+    var idx = state.photos.records.findIndex(function (r) { return r.id === photoId; });
+    if (idx < 0) return;
+    openLightboxByIndex(idx);
+  }
+
+  function openLightboxByIndex(idx) {
+    var row = state.photos.records[idx];
+    if (!row) return;
+    var entry = state.photos.signedUrls[row.id];
+    if (!entry || entry.status !== "ok" || !entry.url) {
+      showToast("Image not ready yet — try refreshing photos.", "warning");
+      return;
+    }
+    lastFocusBeforeLightbox = document.activeElement;
+    lightboxIndex = idx;
+    lightboxImg.src = entry.url;
+    lightboxImg.alt = (row.caption || "Shared family photo");
+    clearNode(lightboxCaption);
+    lightboxCaption.appendChild(document.createTextNode(row.caption || "Shared family photo"));
+    lightboxCaption.appendChild(el("small", null, formatDate(row.created_at)));
+
+    lightbox.style.display = "flex";
+    lightbox.classList.add("is-open");
+    lightbox.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+
+    updateLightboxNav();
+    lightboxClose.focus();
+    document.addEventListener("keydown", lightboxKeyHandler);
+    document.addEventListener("keydown", focusTrapHandler);
+  }
+
+  function updateLightboxNav() {
+    var max = Math.min(state.photos.visible, state.photos.records.length) - 1;
+    lightboxPrev.disabled = lightboxIndex <= 0;
+    lightboxNext.disabled = lightboxIndex >= max;
+  }
+
+  function lightboxGo(delta) {
+    var max = Math.min(state.photos.visible, state.photos.records.length) - 1;
+    var next = Math.min(Math.max(lightboxIndex + delta, 0), max);
+    if (next === lightboxIndex) return;
+    var row = state.photos.records[next];
+    var entry = state.photos.signedUrls[row.id];
+    if (!entry || entry.status !== "ok" || !entry.url) {
+      showToast("Adjacent photo is not ready — refresh photos.", "warning");
+      return;
+    }
+    lightboxIndex = next;
+    lightboxImg.src = entry.url;
+    lightboxImg.alt = row.caption || "Shared family photo";
+    clearNode(lightboxCaption);
+    lightboxCaption.appendChild(document.createTextNode(row.caption || "Shared family photo"));
+    lightboxCaption.appendChild(el("small", null, formatDate(row.created_at)));
+    updateLightboxNav();
+  }
+
+  function closeLightbox() {
+    if (!lightbox.classList.contains("is-open")) return;
+    lightbox.classList.remove("is-open");
+    lightbox.style.display = "none";
+    lightbox.setAttribute("aria-hidden", "true");
+    lightboxImg.src = "";
+    lightboxImg.alt = "";
+    clearNode(lightboxCaption);
+    document.body.style.overflow = "";
+    document.removeEventListener("keydown", lightboxKeyHandler);
+    document.removeEventListener("keydown", focusTrapHandler);
+    if (lastFocusBeforeLightbox && typeof lastFocusBeforeLightbox.focus === "function") {
+      try { lastFocusBeforeLightbox.focus(); } catch (e) {}
+    }
+    lastFocusBeforeLightbox = null;
+    lightboxIndex = -1;
+  }
+
+  function lightboxKeyHandler(evt) {
+    if (evt.key === "Escape") { evt.preventDefault(); closeLightbox(); return; }
+    if (evt.key === "ArrowRight") { evt.preventDefault(); lightboxGo(1); return; }
+    if (evt.key === "ArrowLeft") { evt.preventDefault(); lightboxGo(-1); return; }
+  }
+  function focusTrapHandler(evt) {
+    if (evt.key !== "Tab") return;
+    // Cycle between close, prev, next
+    var focusables = [lightboxClose, lightboxPrev, lightboxNext].filter(function (b) { return !b.disabled; });
+    var i = focusables.indexOf(document.activeElement);
+    if (i === -1) { focusables[0].focus(); evt.preventDefault(); return; }
+    var next = evt.shiftKey ? (i - 1 + focusables.length) % focusables.length : (i + 1) % focusables.length;
+    focusables[next].focus();
+    evt.preventDefault();
+  }
+
+  /* =========================================================
+     TABS
+     ========================================================= */
+  function selectTab(tabId, opts) {
+    opts = opts || {};
+    activeTabId = tabId;
+    var map = [
+      { id: "tab-photos", panel: panelPhotos, selected: tabId === "tab-photos", kind: "photos" },
+      { id: "tab-messages", panel: panelMessages, selected: tabId === "tab-messages", kind: "messages" },
+      { id: "tab-locations", panel: panelLocations, selected: tabId === "tab-locations", kind: "locations" }
+    ];
+    map.forEach(function (t) {
+      var btn = $(t.id);
+      btn.setAttribute("aria-selected", t.selected ? "true" : "false");
+      btn.tabIndex = t.selected ? 0 : -1;
+      if (t.selected) { t.panel.hidden = false; t.panel.classList.add("panel-active"); markSeen(t.kind); }
+      else { t.panel.hidden = true; t.panel.classList.remove("panel-active"); }
+    });
+    if (opts.updateHash !== false) {
+      var hashMap = { "tab-photos": "#photos", "tab-messages": "#messages", "tab-locations": "#locations" };
+      try { history.replaceState(null, "", hashMap[tabId]); } catch (e) { location.hash = hashMap[tabId]; }
+    }
+    refreshBadges();
+  }
+
+  function tabKeyHandler(evt) {
+    var order = ["tab-photos", "tab-messages", "tab-locations"];
+    var idx = order.indexOf(document.activeElement.id);
+    if (idx === -1) return;
+    var next = null;
+    if (evt.key === "ArrowRight" || evt.key === "ArrowDown") next = order[(idx + 1) % order.length];
+    else if (evt.key === "ArrowLeft" || evt.key === "ArrowUp") next = order[(idx - 1 + order.length) % order.length];
+    else if (evt.key === "Home") next = order[0];
+    else if (evt.key === "End") next = order[order.length - 1];
+    if (next) { evt.preventDefault(); selectTab(next); $(next).focus(); }
+  }
+
+  function applyHashTab() {
+    var h = (location.hash || "").toLowerCase();
+    if (h === "#messages") selectTab("tab-messages", { updateHash: false });
+    else if (h === "#locations") selectTab("tab-locations", { updateHash: false });
+    else selectTab("tab-photos", { updateHash: false });
+  }
+  window.addEventListener("hashchange", applyHashTab);
+
+  /* =========================================================
+     REFRESH
+     ========================================================= */
+  function refreshAll() {
+    if (!currentSession || refreshAllPending) return;
+    var any = state.photos.loading || state.messages.loading || state.locations.loading;
+    if (any) return;
+    refreshAllPending = true;
+    state.photos.signedUrls = {};
+    Promise.allSettled([loadPhotos(), loadMessages(), loadLocations()]).then(function (results) {
+      refreshAllPending = false;
+      updateLastRefreshed();
+      saveCache();
+      updateAllBusyUI();
+      var failed = results.filter(function (r) { return r.status === "rejected"; }).length;
+      if (failed > 0) showToast("Some sections failed to refresh", "warning");
+      else showToast("Everything is up to date", "success");
+    });
+  }
+
+  function refreshOne(kind) {
+    if (!currentSession) return;
+    if (kind === "photos") {
+      if (state.photos.loading) return;
+      state.photos.signedUrls = {};
+      loadPhotos().then(function () { updateLastRefreshed(); saveCache(); });
+    } else if (kind === "messages") {
+      loadMessages().then(function () { updateLastRefreshed(); saveCache(); });
+    } else if (kind === "locations") {
+      loadLocations().then(function () { updateLastRefreshed(); saveCache(); });
+    }
+  }
+
+  function loadMorePhotos() {
+    if (state.photos.loading) return;
+    if (state.photos.visible >= state.photos.records.length) return;
+    state.photos.visible = Math.min(state.photos.visible + PAGE_SIZE, state.photos.records.length);
+    state.photos.loading = true;
+    updateAllBusyUI();
+    renderPhotos();
+    resolveSignedUrlsForVisiblePhotos().then(function () {
+      state.photos.loading = false;
+      updateAllBusyUI();
+      renderPhotos();
+    });
+  }
+  function loadMoreMessages() {
+    if (state.messages.visible >= state.messages.records.length) return;
+    state.messages.visible = Math.min(state.messages.visible + MESSAGE_PAGE_SIZE, state.messages.records.length);
+    renderMessages();
+  }
+  function loadMoreLocations() {
+    if (state.locations.visible >= state.locations.records.length) return;
+    state.locations.visible = Math.min(state.locations.visible + LOCATION_PAGE_SIZE, state.locations.records.length);
+    renderLocations();
+  }
+
+  function updateLastRefreshed() {
+    var d = new Date();
+    lastRefreshedText.textContent = "Last refreshed: " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", second: "2-digit" });
+    freshnessDot.classList.remove("stale");
+  }
+
+  /* =========================================================
+     EVENT WIRING
+     ========================================================= */
+  authForm.addEventListener("submit", handleSignIn);
+  signupBtn.addEventListener("click", handleSignUp);
+  forgotBtn.addEventListener("click", handleForgotPassword);
+  signoutBtn.addEventListener("click", handleSignOut);
+
+  refreshAllBtn.addEventListener("click", refreshAll);
+  refreshPhotosBtn.addEventListener("click", function () { refreshOne("photos"); });
+  refreshMessagesBtn.addEventListener("click", function () { refreshOne("messages"); });
+  refreshLocationsBtn.addEventListener("click", function () { refreshOne("locations"); });
+
+  photosLoadMore.addEventListener("click", loadMorePhotos);
+  messagesLoadMore.addEventListener("click", loadMoreMessages);
+  locationsLoadMore.addEventListener("click", loadMoreLocations);
+
+  tabPhotos.addEventListener("click", function () { selectTab("tab-photos"); });
+  tabMessages.addEventListener("click", function () { selectTab("tab-messages"); });
+  tabLocations.addEventListener("click", function () { selectTab("tab-locations"); });
+  tabPhotos.addEventListener("keydown", tabKeyHandler);
+  tabMessages.addEventListener("keydown", tabKeyHandler);
+  tabLocations.addEventListener("keydown", tabKeyHandler);
+
+  lightboxClose.addEventListener("click", closeLightbox);
+  lightboxPrev.addEventListener("click", function () { lightboxGo(-1); });
+  lightboxNext.addEventListener("click", function () { lightboxGo(1); });
+  lightbox.addEventListener("click", function (e) { if (e.target === lightbox) closeLightbox(); });
+
+  /* =========================================================
+     KEYBOARD SHORTCUTS
+     ========================================================= */
+  document.addEventListener("keydown", function (e) {
+    if (!currentSession) return;
+    var tag = (e.target && e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || (e.target && e.target.isContentEditable)) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "r" || e.key === "R") { e.preventDefault(); refreshAll(); }
+    else if (e.key === "1") { e.preventDefault(); selectTab("tab-photos"); }
+    else if (e.key === "2") { e.preventDefault(); selectTab("tab-messages"); }
+    else if (e.key === "3") { e.preventDefault(); selectTab("tab-locations"); }
+  });
+
+  /* =========================================================
+     VISIBILITY / FOCUS AUTO-REFRESH
+     ========================================================= */
+  var lastVisibilityRefresh = 0;
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    if (!currentSession) return;
+    // Refresh session token if near-expired (supabase auto-refreshes, but trigger anyway)
+    supabaseClient.auth.getSession().then(function (res) {
+      if (res.data && res.data.session) currentSession = res.data.session;
+    });
+    // Background refresh data if it's been a while
+    var now = Date.now();
+    if (now - lastVisibilityRefresh > 60 * 1000 && !refreshAllPending) {
+      lastVisibilityRefresh = now;
+      // Silent background refresh: keep UI, avoid toasts
+      if (state.messages.records.length > 0 || state.photos.records.length > 0 || state.locations.records.length > 0) {
+        var silent = true;
+        var p = Promise.allSettled([silentLoad("photos"), silentLoad("messages"), silentLoad("locations")]);
+        p.then(function () { updateLastRefreshed(); saveCache(); });
+      }
+    }
+  });
+
+  function silentLoad(kind) {
+    // Loads without skeleton/toasts; merges into state
+    var table = kind === "photos" ? "mom_photos" : (kind === "messages" ? "mom_messages" : "mom_location_updates");
+    return supabaseClient.from(table).select("*").order("created_at", { ascending: false })
+      .then(function (res) {
+        if (res.error || !Array.isArray(res.data)) return;
+        if (kind === "messages") {
+          state.messages.records = res.data;
+          state.messages.visible = Math.min(state.messages.visible, res.data.length) || Math.min(MESSAGE_PAGE_SIZE, res.data.length);
+          if (res.data.length > 0) renderMessages();
+        } else if (kind === "locations") {
+          state.locations.records = res.data;
+          state.locations.visible = Math.min(state.locations.visible, res.data.length) || Math.min(LOCATION_PAGE_SIZE, res.data.length);
+          if (res.data.length > 0) renderLocations();
+        } else if (kind === "photos") {
+          state.photos.records = res.data;
+          state.photos.visible = Math.min(state.photos.visible, res.data.length) || Math.min(PAGE_SIZE, res.data.length);
+          state.photos.signedUrls = {}; // force new signed URLs
+          resolveSignedUrlsForVisiblePhotos().then(function () { if (res.data.length > 0) renderPhotos(); });
+        }
+        refreshBadges();
+      });
+  }
+
+  /* =========================================================
+     PULL-TO-REFRESH (touch only)
+     ========================================================= */
+  (function setupPTR() {
+    var startY = 0, pulling = false, threshold = 70;
+    var appMain = document.querySelector(".app-main");
+    if (!appMain) return;
+    document.addEventListener("touchstart", function (e) {
+      if (!currentSession) return;
+      if (window.scrollY > 4) return;
+      if (e.touches.length !== 1) return;
+      startY = e.touches[0].clientY;
+      pulling = true;
+    }, { passive: true });
+    document.addEventListener("touchmove", function (e) {
+      if (!pulling) return;
+      var dy = e.touches[0].clientY - startY;
+      if (dy > 0 && window.scrollY <= 4) {
+        ptrIndicator.classList.add("is-visible");
+        ptrIndicator.style.transform = "translateX(-50%) translateY(" + Math.min(dy, 100) + "px)";
+      }
+    }, { passive: true });
+    document.addEventListener("touchend", function () {
+      if (!pulling) return;
+      pulling = false;
+      var visible = ptrIndicator.classList.contains("is-visible");
+      if (!visible) return;
+      ptrIndicator.classList.add("is-refreshing");
+      ptrIndicator.style.transform = "";
+      refreshAll();
+      setTimeout(function () {
+        ptrIndicator.classList.remove("is-visible");
+        ptrIndicator.classList.remove("is-refreshing");
+      }, 600);
+    });
+  })();
+
+  /* =========================================================
+     AUTH STATE
+     ========================================================= */
+  function onAuthenticated(session) {
+    currentSession = session;
+    currentEmail = (session.user && session.user.email) ? session.user.email : "Signed-in account";
+    accountEmail.textContent = currentEmail;
+    accountEmail.title = currentEmail;
+    welcomeText.textContent = "Welcome back, " + (currentEmail.split("@")[0] || "friend") + " — here's what's new.";
+    showDashboard();
+    applyHashTab();
+    // Hydrate from cache so we can render instantly
+    var cache = loadCache();
+    if (cache && cache.userId === (session.user && session.user.id)) {
+      hydrateFromCache(cache);
+      // Render cached data immediately
+      if (state.messages.records.length > 0) renderMessages();
+      if (state.locations.records.length > 0) renderLocations();
+      if (state.photos.records.length > 0) {
+        // Cached photo metadata — signed URLs will be recreated
+        renderPhotos();
+      }
+    }
+    updateAllBusyUI();
+    refreshAll();
+    startAutoRefreshTimer();
+  }
+
+  function onSignedOut() {
+    currentSession = null;
+    currentEmail = "";
+    stopAutoRefreshTimer();
+    clearDashboardContent();
+    showAuth();
+    setAuthBusy(null);
+  }
+
+  function startAutoRefreshTimer() {
+    stopAutoRefreshTimer();
+    if (!prefs.autoRefreshMs || prefs.autoRefreshMs < 30000) return;
+    autoRefreshTimer = setInterval(function () {
+      if (!currentSession) return;
+      if (document.visibilityState !== "visible") return;
+      // Only auto-refresh if no request is in flight and user is idle-ish
+      if (!refreshAllPending) {
+        silentLoad("photos"); silentLoad("messages"); silentLoad("locations");
+      }
+    }, prefs.autoRefreshMs);
+  }
+  function stopAutoRefreshTimer() {
+    if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+  }
+
+  /* =========================================================
+     INITIAL BOOT
+     ========================================================= */
+  updateOnlineUI();
+  scheduleSignedUrlRenewal();
+
+  supabaseClient.auth.getSession()
+    .then(function (res) {
+      if (res.error) {
+        showAuth();
+        showNotice("warning", "We could not check for a saved session: " + errorText(res.error) + ". You can still try signing in below.");
+        return;
+      }
+      var session = res.data ? res.data.session : null;
+      if (session) {
+        onAuthenticated(session);
+      } else {
+        showAuth();
+        // Prefill email from last successful login (convenience)
+        try {
+          var raw = localStorage.getItem("momconnect.lastEmail");
+          if (raw) authEmail.value = raw;
+        } catch (e) {}
+      }
+    })
+    .catch(function (err) {
+      showAuth();
+      if (isNetworkError(err)) showNotice("warning", "Network problem while checking for a saved session. Check your connection, or try signing in below.");
+      else showNotice("warning", "Unexpected problem checking for a saved session: " + errorText(err));
+    });
+
+  // Persist last-used email on sign-in success via event
+  supabaseClient.auth.onAuthStateChange(function (event, session) {
+    if (event === "SIGNED_OUT" || !session) {
+      if (event === "SIGNED_OUT" || event === "INITIAL_SESSION") onSignedOut();
+      return;
+    }
+    if (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") {
+      // Save last email for prefill convenience
+      try {
+        if (session.user && session.user.email) localStorage.setItem("momconnect.lastEmail", session.user.email);
+      } catch (e) {}
+      var wasHidden = dashboardView.style.display === "none" || dashboardView.style.display === "";
+      var sameUser = currentSession && session.user && currentSession.user && session.user.id === currentSession.user.id;
+      if (wasHidden || !sameUser) onAuthenticated(session);
+      else currentSession = session;
+    }
+  });
+
+})();
+</script>
+</body>
+</html>
