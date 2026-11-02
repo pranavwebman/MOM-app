@@ -130,7 +130,7 @@ async function loadLocation(){
  if(res.error){failure=res.error}
  else row=res.data;
  // Backward compatibility with the earlier location-history table.
- if(!row&&!res.error){
+ if(!row){
   const old=await client.from("mom_location_updates").select("*").order("created_at",{ascending:false}).limit(1).maybeSingle();
   if(!old.error&&old.data){row=old.data;source="mom_location_updates"}
   else if(old.error)failure=old.error;
